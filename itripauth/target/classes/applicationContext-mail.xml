@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	<bean id="mailSSLSocketFactory" class="com.sun.mail.util.MailSSLSocketFactory">
+		<property name="trustAllHosts" value="true"></property>
+	</bean>
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.exmail.qq.com"></property>
+		<property name="username" value="qidian@qidiankt.com"></property>
+		<property name="password" value="Aa7758258"></property>
+		<property name="protocol" value="smtp"></property>
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<property name="javaMailProperties">
+			<props>
+				<!-- 使用SMTP身份验证 -->
+				<prop key="mail.smtp.auth">true</prop>
+				<!-- Debug模式 -->
+				<prop key="mail.debug">true</prop>
+
+				<prop key="mail.smtp.ssl.socketFactory">mailSSLSocketFactory</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="activationMailMessage" class="org.springframework.mail.SimpleMailMessage" scope="prototype">
+		<property name="from" value="qidian@qidiankt.com"/>
+		<property name="subject" value="【i旅行】请激活您的账户"/>
+		<property name="text" value="验证码的有效期为"/>
+	</bean>
+
+</beans>
