@@ -1,6 +1,7 @@
 package com.itrip.auth.service.impl;
 
 import com.itrip.auth.service.MailService;
+import com.itrip.auth.service.SmsService;
 import com.itrip.auth.service.UserService;
 import com.itrip.beans.pojo.ItripUser;
 import com.itrip.common.MD5;
@@ -27,6 +28,8 @@ public class UserServiceImpl implements UserService {
     @Resource
     private MailService mailService;
     @Resource
+    private SmsService smsService;
+    @Resource
     private RedisAPI redisAPI;
     @Override
     public void itriptxCreateUser(ItripUser user) throws Exception {
@@ -38,20 +41,18 @@ public class UserServiceImpl implements UserService {
         //3.发生邮件
         mailService.sendActivationMail(user.getUserCode(),activationCode);
         //4..激活码存入Redis
-        redisAPI.set("activation:"+user.getUserCode(),30*2,activationCode);
+        redisAPI.set("activation:"+user.getUserCode(),60*2,activationCode);
     }
 
     @Override
     public boolean activate(String mail, String code) throws Exception {
         //1.验证激活码
         String value = redisAPI.get("activation:" + mail);
-        if(value.equals(code)){
-            //2.更新用户
-            Map param = new HashMap();
-            param.put("userCode",mail);
-            List itripUserListByMap = itripUserMapper.getItripUserListByMap(param);
-            if(itripUserListByMap.size()>0){
-                ItripUser itripUser = (ItripUser) itripUserListByMap.get(0);
+        if(null!=value&value.equals(code)){
+            //2.更新用户状态
+            ItripUser itripUser = findUserByUserCode(mail);
+            //找到当前用户
+            if (itripUser != null) {
                 //设置激活状态为1
                 itripUser.setActivated(1);
                 //自平台注册用户
@@ -60,10 +61,9 @@ public class UserServiceImpl implements UserService {
                 itripUserMapper.updateItripUser(itripUser);
                 return true;
             }
-        }else {
-            return false;
         }
-        return false;
+            return false;
+
     }
 
     @Override
@@ -77,4 +77,38 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public void itriptxCreateByPhone(ItripUser itripUser) throws Exception {
+        //1.创建用户
+        itripUserMapper.insertItripUser(itripUser);
+        //2.生成验证码
+        int randomCode = MD5.getRandomCode();
+        //3.发送验证码                     传入发送号码，发送模板，发送内容，验证码有效期
+        smsService.send(itripUser.getUserCode(),"1",new String[]{String.valueOf(randomCode),"2"});
+        //4.缓存验证码到redis中
+        redisAPI.set("activation:"+itripUser.getUserCode(),60*2,String.valueOf(randomCode));
+    }
+
+    @Override
+    public boolean validatePhone(String phoneNum, String code) throws Exception {
+        //1.比对验证码
+        String value = redisAPI.get("activation:" + phoneNum);
+        if(null!=value&value.equals(code)){
+            //2.更新用户状态
+            ItripUser itripUser = findUserByUserCode(phoneNum);
+            if(itripUser!=null){
+                //设置激活状态为1
+                itripUser.setActivated(1);
+                //自平台注册用户
+                itripUser.setUserType(0);
+                itripUser.setFlatID(itripUser.getId());
+                itripUserMapper.updateItripUser(itripUser);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

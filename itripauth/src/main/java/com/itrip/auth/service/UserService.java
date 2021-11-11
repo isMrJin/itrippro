@@ -31,5 +31,17 @@ public interface UserService {
     * @Date: 2021/11/11-19:18
     */
     public ItripUser findUserByUserCode(String userCode)throws Exception;
-    
+    /** 
+    * @Description: 手机号注册用户
+    * @Author: Mr.ShenJinChao
+    * @Date: 2021/11/11-20:52
+    */
+    public void itriptxCreateByPhone(ItripUser itripUser) throws Exception;
+
+    /**
+    * @Description: 短信验证
+    * @Author: Mr.ShenJinChao
+    * @Date: 2021/11/11-21:07
+    */
+    public boolean validatePhone(String phoneNum,String code) throws Exception;
 }
