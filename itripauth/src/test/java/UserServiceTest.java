@@ -14,8 +14,8 @@ public class UserServiceTest {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         UserService userServices = context.getBean("userService", UserService.class);
         ItripUser itripUser = new ItripUser();
-        itripUser.setUserName("小刘");
-        itripUser.setUserCode("shenjinchao88@gmail.com");
+        itripUser.setUserName("周天翔");
+        itripUser.setUserCode("2662334630@qq.com");
 
         userServices.itriptxCreateUser(itripUser);
     }
@@ -24,6 +24,6 @@ public class UserServiceTest {
     public void testActivateUser() throws Exception {
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
         UserService userServices = context.getBean("userService", UserService.class);
-        System.out.println(userServices.activate("shenjinchao88@gmail.com","7a63ba50c5eefa5d5d4cd8e3c53911e4"));
+        System.out.println(userServices.activate("2662334630@qq.com","bdae0b0469c81015db7e6c806ce44881"));
     }
 }

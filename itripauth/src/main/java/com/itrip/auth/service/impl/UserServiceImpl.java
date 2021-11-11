@@ -65,4 +65,16 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
+
+    @Override
+    public ItripUser findUserByUserCode(String userCode) throws Exception {
+        Map param = new HashMap();
+        param.put("userCode",userCode);
+        List itripUserListByMap = itripUserMapper.getItripUserListByMap(param);
+        if(itripUserListByMap.size()>0){
+            return (ItripUser) itripUserListByMap.get(0);
+        }else {
+            return null;
+        }
+    }
 }
